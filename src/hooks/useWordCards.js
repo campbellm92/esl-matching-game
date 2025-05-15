@@ -7,32 +7,47 @@ export function useWordCards(wordListPath) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const MAX_PAIRS = 8;
     async function loadAndPrepareCards() {
       const wordResponse = await fetch(wordListPath);
-      let words = await wordResponse.json();
-      words = shuffleWordsArray(words).slice(0, 8);
+      const allWords = await wordResponse.json();
+      const shuffledWords = shuffleWordsArray(allWords);
 
-      const cardPairs = await Promise.all(
-        words.map(async (word, index) => {
-          const definition = await fetchWordDefinition(word);
-          return [
+      const validPairs = [];
+      let index = 0;
+      let matchId = 0;
+
+      while (validPairs.length < MAX_PAIRS && index < shuffledWords.length) {
+        const word = shuffledWords[index];
+        const definition = await fetchWordDefinition(word);
+
+        if (
+          definition &&
+          definition !== "No definition found." &&
+          definition.trim() !== ""
+        ) {
+          validPairs.push([
             {
-              id: `${index}-word`,
+              id: `${matchId}-word`,
               type: "word",
               content: word,
-              matchId: `${index}`,
+              matchId: `${matchId}`,
             },
             {
-              id: `${index}-def`,
+              id: `${matchId}-def`,
               type: "definition",
               content: definition,
-              matchId: `${index}`,
+              matchId: `${matchId}`,
             },
-          ];
-        })
-      );
-      const flattenedCardsArray = cardPairs.flat();
-      setCards(shuffleWordsArray(flattenedCardsArray));
+          ]);
+          matchId++;
+        }
+
+        index++;
+      }
+
+      const flatPairsArray = validPairs.flat();
+      setCards(shuffleWordsArray(flatPairsArray));
       setIsLoading(false);
     }
     loadAndPrepareCards();
