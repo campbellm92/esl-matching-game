@@ -1,9 +1,18 @@
 import { cleanDefinition } from "../../utils/cleanDefinition";
 import styles from "./Card.module.css";
 
-export default function Card({ card, content, type, handleChoice, isFlipped }) {
+export default function Card({
+  card,
+  content,
+  type,
+  handleChoice,
+  isFlipped,
+  disabled,
+}) {
   function handleClick() {
-    handleChoice(card);
+    if (!disabled) {
+      handleChoice(card);
+    }
   }
 
   return (
