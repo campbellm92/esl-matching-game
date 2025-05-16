@@ -52,5 +52,6 @@ export function useWordCards(wordListPath) {
     }
     loadAndPrepareCards();
   }, [wordListPath]);
-  return { cards, isLoading };
+  //pass this down to Game.jsx
+  return { cards, setCards, isLoading };
 }
