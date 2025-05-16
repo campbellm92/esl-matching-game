@@ -1,11 +1,11 @@
 // import { useState } from "react";
 import { useEffect, useState } from "react";
 import { useWordCards } from "../hooks/useWordCards";
-import Card from "./Card";
+import Card from "./Card/Card";
 
 export default function Game() {
   const wordsPath = "../../data/a1-words.json";
-  const { cards, loading } = useWordCards(wordsPath); // contains card info from the hook, incl id, type, content, matchId
+  const { cards, setCards, loading } = useWordCards(wordsPath); // contains card info from the hook, incl id, type, content, matchId
   const [turns, setTurns] = useState(0);
   const [cardOne, setCardOne] = useState(null);
   const [cardTwo, setCardTwo] = useState(null);
@@ -23,20 +23,22 @@ export default function Game() {
   useEffect(() => {
     if (cardOne && cardTwo) {
       if (cardOne.matchId === cardTwo.matchId) {
-        console.log(
-          `Card one: ${cardOne.id}, ${cardOne.content}, ${cardOne.type}, ${cardOne.matchId} \n Card two:  ${cardTwo.id}, ${cardTwo.content}, ${cardTwo.type}, ${cardTwo.matchId}`
-        );
-        console.log("Matching cards");
+        setCards((prevCards) => {
+          return prevCards.map((card) => {
+            if (card.matchId === cardOne.matchId) {
+              return { ...card, matched: true };
+            } else {
+              return card;
+            }
+          });
+        });
         handleResetTurn();
       } else {
-        console.log(
-          `Card one: ${cardOne.id}, ${cardOne.content}, ${cardOne.type}, ${cardOne.matchId} \n Card two:  ${cardTwo.id}, ${cardTwo.content}, ${cardTwo.type}, ${cardTwo.matchId}`
-        );
-        console.log("Not a match");
         handleResetTurn();
       }
     }
   }, [cardOne, cardTwo]);
+  console.log(cards);
 
   return (
     <div className="flex justify-center items-center min-h-screen">
@@ -49,6 +51,7 @@ export default function Game() {
             content={card.content}
             type={card.type}
             handleChoice={handleChoice}
+            isFlipped={card === cardOne || card === cardTwo || card.matched}
           />
         ))}
       </div>
